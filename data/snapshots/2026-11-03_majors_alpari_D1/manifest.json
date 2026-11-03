@@ -1,0 +1,90 @@
+{
+  "created_utc": "2026-11-03T08:30:13.322989+00:00",
+  "folder": "2026-11-03_majors_alpari_D1",
+  "label": "majors_alpari",
+  "timeframe": "D1",
+  "full_history": true,
+  "range_start_utc": "1970-01-01T00:00:00+00:00",
+  "range_end_utc": "2026-11-03T08:11:53.622365+00:00",
+  "requested_years": null,
+  "actual_first_bar_utc": "1999-01-04T00:00:00+00:00",
+  "actual_last_bar_utc": "2026-11-03T00:00:00+00:00",
+  "terminal": {
+    "login": 245089294,
+    "server": "Alpari-MT5",
+    "company": "Alpari",
+    "path": "C:\\Program Files\\MetaTrader 5",
+    "build": 6296,
+    "connected": true,
+    "maxbars": 100000000,
+    "tick_time_utc": "2026-11-03T10:30:09+00:00"
+  },
+  "symbols": [
+    {
+      "logical": "EURUSD",
+      "resolved": "EURUSD_i",
+      "csv": "EURUSD.csv",
+      "bar_count": 7206,
+      "first_bar": "1999-01-04T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "GBPUSD",
+      "resolved": "GBPUSD_i",
+      "csv": "GBPUSD.csv",
+      "bar_count": 7231,
+      "first_bar": "1999-01-04T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "AUDUSD",
+      "resolved": "AUDUSD_i",
+      "csv": "AUDUSD.csv",
+      "bar_count": 7230,
+      "first_bar": "1999-01-04T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "NZDUSD",
+      "resolved": "NZDUSD_i",
+      "csv": "NZDUSD.csv",
+      "bar_count": 7207,
+      "first_bar": "1999-01-04T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "USDJPY",
+      "resolved": "USDJPY_i",
+      "csv": "USDJPY.csv",
+      "bar_count": 7204,
+      "first_bar": "1999-01-04T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "USDCHF",
+      "resolved": "USDCHF_i",
+      "csv": "USDCHF.csv",
+      "bar_count": 7206,
+      "first_bar": "1999-01-04T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "USDCAD",
+      "resolved": "USDCAD_i",
+      "csv": "USDCAD.csv",
+      "bar_count": 7210,
+      "first_bar": "1999-01-04T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "EURGBP",
+      "resolved": "EURGBP_i",
+      "csv": "EURGBP.csv",
+      "bar_count": 7203,
+      "first_bar": "1999-01-05T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    }
+  ],
+  "immutable": true,
+  "note": "This snapshot is frozen. Do not edit CSVs or rewrite this folder. Pull a new dated snapshot for new data."
+}

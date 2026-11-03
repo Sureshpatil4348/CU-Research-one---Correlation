@@ -1,0 +1,86 @@
+{
+  "created_utc": "2026-11-03T07:24:17.206735+00:00",
+  "folder": "2026-11-03_majors_D1",
+  "label": "majors",
+  "timeframe": "D1",
+  "range_start_utc": "2021-11-04T07:23:21.824032+00:00",
+  "range_end_utc": "2026-11-03T07:23:21.824032+00:00",
+  "requested_years": 5,
+  "terminal": {
+    "login": 21894742,
+    "server": "VantageMarkets-Live 8",
+    "company": "Vantage Markets (Pty) Ltd",
+    "path": "C:\\Program Files\\MetaTrader 5",
+    "build": 6296,
+    "connected": true,
+    "tick_time_utc": "2026-11-03T09:24:16+00:00"
+  },
+  "symbols": [
+    {
+      "logical": "EURUSD",
+      "resolved": "EURUSD",
+      "csv": "EURUSD.csv",
+      "bar_count": 1296,
+      "first_bar": "2021-11-05T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "GBPUSD",
+      "resolved": "GBPUSD",
+      "csv": "GBPUSD.csv",
+      "bar_count": 1296,
+      "first_bar": "2021-11-05T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "AUDUSD",
+      "resolved": "AUDUSD",
+      "csv": "AUDUSD.csv",
+      "bar_count": 1296,
+      "first_bar": "2021-11-05T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "NZDUSD",
+      "resolved": "NZDUSD",
+      "csv": "NZDUSD.csv",
+      "bar_count": 1296,
+      "first_bar": "2021-11-05T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "USDJPY",
+      "resolved": "USDJPY",
+      "csv": "USDJPY.csv",
+      "bar_count": 1296,
+      "first_bar": "2021-11-05T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "USDCHF",
+      "resolved": "USDCHF",
+      "csv": "USDCHF.csv",
+      "bar_count": 1296,
+      "first_bar": "2021-11-05T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "USDCAD",
+      "resolved": "USDCAD",
+      "csv": "USDCAD.csv",
+      "bar_count": 1296,
+      "first_bar": "2021-11-05T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "logical": "EURGBP",
+      "resolved": "EURGBP",
+      "csv": "EURGBP.csv",
+      "bar_count": 1296,
+      "first_bar": "2021-11-05T00:00:00+00:00",
+      "last_bar": "2026-11-03T00:00:00+00:00"
+    }
+  ],
+  "immutable": true,
+  "note": "This snapshot is frozen. Do not edit CSVs or rewrite this folder. Pull a new dated snapshot for new data."
+}
