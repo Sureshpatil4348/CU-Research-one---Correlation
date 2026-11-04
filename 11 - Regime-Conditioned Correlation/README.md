@@ -1,6 +1,6 @@
 ﻿# Regime-conditioned correlation
 
-**Status:** complete (experiments/v001)
+**Status:** v001 complete; v002 adds the Forbes-Rigobon adjustment; v003 writes the trailing adjusted-gap feature
 
 **Formula guide:** section 11 in [forex-formulas-explained.pdf](../forex-formulas-explained.pdf)
 

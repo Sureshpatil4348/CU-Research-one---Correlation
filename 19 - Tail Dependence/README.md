@@ -1,6 +1,6 @@
 ﻿# Tail dependence
 
-**Status:** complete (experiments/v001)
+**Status:** v001 complete; v002 adds the Gaussian co-exceedance benchmark; v003 writes the trailing lower-tail excess
 
 **Formula guide:** section 19 in [forex-formulas-explained.pdf](../forex-formulas-explained.pdf)
 

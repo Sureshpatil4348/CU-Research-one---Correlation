@@ -1,6 +1,6 @@
 # Rolling correlation
 
-**Status:** complete (experiments/v001)
+**Status:** v001 complete; v002 writes rolling Pearson at 20, 60, and 100 for all 28 pairs (`experiments/v002/`)
 
 **Formula guide:** section 05 in [forex-formulas-explained.pdf](../forex-formulas-explained.pdf)
 

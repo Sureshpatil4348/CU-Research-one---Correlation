@@ -1,6 +1,6 @@
 ﻿# Networks, PCA, and connectedness
 
-**Status:** complete (experiments/v001)
+**Status:** v001 complete; v002 reruns PCA and connectedness without EURGBP; v003 writes the trailing network features
 
 **Formula guide:** section 28 in [forex-formulas-explained.pdf](../forex-formulas-explained.pdf)
 

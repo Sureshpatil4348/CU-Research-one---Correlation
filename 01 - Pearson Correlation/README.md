@@ -1,6 +1,6 @@
 # Pearson correlation
 
-**Status:** complete (experiments/v001)
+**Status:** v001 complete; v002 writes the expanding Pearson feature (`experiments/v002/`)
 
 **Formula guide:** section 01 in [forex-formulas-explained.pdf](../forex-formulas-explained.pdf)
 

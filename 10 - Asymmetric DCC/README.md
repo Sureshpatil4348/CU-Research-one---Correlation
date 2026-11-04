@@ -1,6 +1,6 @@
 ﻿# Asymmetric DCC
 
-**Status:** complete (experiments/v001)
+**Status:** v001 complete; v002 refits ADCC with g = 0 allowed; v003 writes the causal ADCC feature
 
 **Formula guide:** section 10 in [forex-formulas-explained.pdf](../forex-formulas-explained.pdf)
 

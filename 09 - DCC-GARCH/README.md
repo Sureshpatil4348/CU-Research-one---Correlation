@@ -1,6 +1,6 @@
 ﻿# DCC-GARCH
 
-**Status:** complete (experiments/v001)
+**Status:** v001 complete; v002 refits DCC without the b >= 0.5 floor (`experiments/v002/`)
 
 **Formula guide:** section 09 in [forex-formulas-explained.pdf](../forex-formulas-explained.pdf)
 
