@@ -1,6 +1,6 @@
 ﻿# Transfer entropy
 
-**Status:** complete (experiments/v001)
+**Status:** v001 complete; v002 ranks transfer entropy after a permutation null and BH-FDR (`experiments/v002/`)
 
 **Formula guide:** section 17 in [forex-formulas-explained.pdf](../forex-formulas-explained.pdf)
 

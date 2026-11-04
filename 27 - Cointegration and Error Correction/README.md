@@ -1,6 +1,6 @@
 ﻿# Cointegration and error correction
 
-**Status:** complete (experiments/v001)
+**Status:** v001 complete; v002 applies Bonferroni and BH-FDR to the Engle-Granger p-values (`experiments/v002/`)
 
 **Formula guide:** section 27 in [forex-formulas-explained.pdf](../forex-formulas-explained.pdf)
 

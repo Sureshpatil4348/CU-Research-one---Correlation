@@ -1,6 +1,6 @@
 ﻿# Partial and residual correlation
 
-**Status:** complete (experiments/v001)
+**Status:** v001 complete; v002 writes the trailing partial-correlation feature (`experiments/v002/`)
 
 **Formula guide:** section 07 in [forex-formulas-explained.pdf](../forex-formulas-explained.pdf)
 

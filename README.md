@@ -21,7 +21,7 @@ EURUSD, GBPUSD, AUDUSD, NZDUSD, USDJPY, USDCHF, USDCAD, EURGBP.
 
 ## Current phase
 
-Pearson (method 01) v001 through networks / PCA / connectedness (method 28) v001 are complete on the Alpari full-history D1 snapshot — all 28 dependence measures in the formula guide. Rolling covers the short watchlist, secondary tier, and low-value pairs with windows 20 / 60 / 100. See [docs/DATA.md](docs/DATA.md) and [05 - Rolling Correlation/experiments/v001/outputs/WATCHLIST.md](05%20-%20Rolling%20Correlation/experiments/v001/outputs/WATCHLIST.md).
+v001 of methods 01 through 28 is complete on the Alpari full-history D1 snapshot. Gap checks for cointegration, transfer entropy, DCC, asymmetric DCC, regime correlation, tails, and the seven-asset network are in each method's `experiments/v002/`. Time-t features for the shortlist are in v002 for methods 01, 05, 07, and 14, and in v003 for methods 10, 11, 19, and 28. The pre-registered horse race is [research/forecast/v001/DRAFT.md](research/forecast/v001/DRAFT.md). The 28-method catalogue remains [reports/Correlation_Methods_28_Pages.pdf](reports/Correlation_Methods_28_Pages.pdf).
 
 
 
