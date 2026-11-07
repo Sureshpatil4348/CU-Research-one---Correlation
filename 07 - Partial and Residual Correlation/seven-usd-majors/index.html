@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Seven USD majors — partial correlation vs pace</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 24px; color: #222; max-width: 1100px; }
+h1 { font-size: 1.35rem; margin-bottom: 0.4rem; }
+h2 { font-size: 1.1rem; margin-top: 1.8rem; }
+h3 { font-size: 1rem; margin-top: 1.2rem; }
+p { line-height: 1.5; }
+ul, ol { line-height: 1.5; }
+img { max-width: 100%; height: auto; border: 1px solid #ddd; margin: 0.6rem 0 1rem; }
+table { border-collapse: collapse; font-size: 0.88rem; margin-top: 0.6rem; width: 100%; }
+th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+th { background: #f3f3f3; }
+.note { color: #555; font-size: 0.92rem; }
+.lead { font-size: 1.05rem; background: #f7f9fc; border-left: 4px solid #1565c0; padding: 12px 14px; }
+.conclusion { background: #f4f7f4; border-left: 4px solid #2e7d32; padding: 12px 14px; }
+code { font-family: Consolas, monospace; font-size: 0.92em; background: #f5f5f5; padding: 1px 4px; }
+.chart-block { margin-bottom: 1.5rem; }
+.caption { color: #555; font-size: 0.9rem; margin-top: -0.4rem; margin-bottom: 1rem; }
+nav { margin: 1rem 0 1.5rem; font-size: 0.92rem; }
+nav a { margin-right: 1rem; color: #1565c0; }
+</style>
+</head>
+<body>
+<h1>Seven USD majors — partial correlation vs pace</h1>
+<p class="lead">
+Removing the USD factor changes more than the level. On W=60, path and pace agreement with raw rolling Pearson are often weak, so the residual tempo can diverge from the raw correlation path.
+Mean W=60 path agreement is 0.644;
+mean W=60 pace agreement is 0.661.
+Median |full-sample gap| is 0.298.
+</p>
+<p class="note">
+Method 07 named dig under
+<code>07 - Partial and Residual Correlation/seven-usd-majors/</code>.
+EURGBP excluded. Not a new experiment version. Does not change partial v001.
+Not a trade signal.
+</p>
+
+<nav>
+<a href="#why">Why</a>
+<a href="#setup">Setup</a>
+<a href="#overview">Overview charts</a>
+<a href="#numbers">Numbers</a>
+<a href="#pair-charts">Pair charts</a>
+<a href="#how-to-read">How to read</a>
+<a href="#conclusion">Conclusion</a>
+</nav>
+
+<h2 id="why">Why this dig</h2>
+<p>
+Partial / residual correlation v001 already strips a leave-currency-out USD
+strength factor from all eight majors and reports one full-sample
+<code>rho_partial</code> per pair. This folder asks a different question on a
+narrower universe: among the seven USD majors only, after the USD factor is
+removed, does the leftover link still move at the same pace as raw Pearson
+correlation through time?
+</p>
+<ul>
+<li><strong>Universe:</strong> EURUSD, GBPUSD, AUDUSD, NZDUSD, USDJPY, USDCHF,
+USDCAD — 21 unordered pairs.</li>
+<li><strong>Left out:</strong> EURGBP (not a studied leg; never a USD-factor
+constituent).</li>
+<li><strong>Two views:</strong> full-sample partial vs Pearson (level / gap),
+and rolling raw vs in-window partial on W ∈ {20, 60, 100} (path and pace).</li>
+</ul>
+
+<h2 id="setup">Experiment setup</h2>
+<ul>
+<li><strong>Snapshot:</strong> <code>2026-11-03_majors_alpari_D1</code>
+under <code>data/snapshots/2026-11-03_majors_alpari_D1</code>.</li>
+<li><strong>Bar filter:</strong> Dropped unfinished last bar dated 2026-11-03 UTC after a tick-volume check against the prior complete day.</li>
+<li><strong>Series:</strong> daily log return of close,
+<code>ln(close<sub>t</sub> / close<sub>t−1</sub>)</code>. Quote direction
+unchanged; no inversion.</li>
+<li><strong>Control z:</strong> equal-weight mean of USD-strength returns from
+majors that do not share a non-USD currency with either leg. USD-strength is
+minus the log return when USD is the quote and plus the log return when USD
+is the base.</li>
+<li><strong>Full-sample:</strong> OLS of each leg on z with an intercept;
+<code>rho_partial</code> is Pearson of the residuals. Same-sample raw Pearson
+r and the gap <code>rho_partial − r</code> are side checks. Fisher 95%
+intervals are shown; p-values stay secondary.</li>
+<li><strong>Rolling partial:</strong> inside each window W,
+<code>rho_partial<sup>(W)</sup> = (r<sub>xy</sub> − r<sub>xz</sub> r<sub>yz</sub>)
+/ sqrt((1 − r<sub>xz</sub>²)(1 − r<sub>yz</sub>²))</code>.
+This is the correlation of the in-window OLS residuals.</li>
+<li><strong>Pace metrics:</strong> path agreement = correlation of the raw
+and partial rolling series; pace agreement = correlation of their first
+differences; sign agreement = share of days with the same sign; mean gap and
+mean absolute gap.</li>
+<li><strong>Headline window:</strong> W = 60. Windows 20 and 100 stay in the
+tables and charts.</li>
+<li><strong>Runner:</strong> <code>run_seven.py</code>. Figures live under
+<code>outputs/figures/</code>.</li>
+</ul>
+
+<h2 id="overview">Overview charts</h2>
+<div class="chart-block">
+<h3>Full-sample Pearson r</h3>
+<img src="outputs/figures/heatmap_pearson_r.png" alt="Heatmap of full-sample Pearson r"/>
+<p class="caption">7×7 matrix among the seven USD majors. Diagonal fixed at 1.</p>
+</div>
+<div class="chart-block">
+<h3>Full-sample rho_partial</h3>
+<img src="outputs/figures/heatmap_rho_partial.png" alt="Heatmap of full-sample rho_partial"/>
+<p class="caption">Residual correlation after the leave-currency-out USD factor.</p>
+</div>
+<div class="chart-block">
+<h3>Full-sample gap (rho_partial − r)</h3>
+<img src="outputs/figures/heatmap_gap.png" alt="Heatmap of partial minus Pearson"/>
+<p class="caption">Large |gap| means the USD factor explained much of the raw link,
+or that residual co-movement runs against the raw sign.</p>
+</div>
+<div class="chart-block">
+<h3>W=60 pace agreement</h3>
+<img src="outputs/figures/heatmap_pace_agreement_60.png" alt="Heatmap of W=60 pace agreement"/>
+<p class="caption">Correlation of first differences of raw rolling r and rolling
+partial. Values near 1 mean the day-to-day tempo stays aligned after USD removal.</p>
+</div>
+<div class="chart-block">
+<h3>Partial vs Pearson scatter</h3>
+<img src="outputs/figures/scatter_partial_vs_pearson.png" alt="Scatter of rho_partial vs Pearson r"/>
+<p class="caption">Points off the dashed y = x line are pairs where stripping USD
+moves the full-sample score. Large-gap pairs are labelled.</p>
+</div>
+
+<h2 id="numbers">Numbers at a glance</h2>
+<p>
+Full-sample scores for all 21 pairs. Gap is <code>rho_partial − pearson_r</code>.
+R² columns are each leg’s R-squared on the control z.
+</p>
+<table><thead><tr><th>Pair</th><th>n</th><th>Pearson r</th><th>rho_partial</th><th>Gap</th><th>R2_x</th><th>R2_y</th><th>CI low</th><th>CI high</th></tr></thead><tbody><tr><td style="text-align:left">EURUSD-GBPUSD</td><td style="text-align:right">7148</td><td style="text-align:right">0.642</td><td style="text-align:right">0.344</td><td style="text-align:right">-0.298</td><td style="text-align:right">0.542</td><td style="text-align:right">0.391</td><td style="text-align:right">0.324</td><td style="text-align:right">0.364</td></tr><tr><td style="text-align:left">EURUSD-AUDUSD</td><td style="text-align:right">7148</td><td style="text-align:right">0.557</td><td style="text-align:right">-0.016</td><td style="text-align:right">-0.573</td><td style="text-align:right">0.608</td><td style="text-align:right">0.524</td><td style="text-align:right">-0.039</td><td style="text-align:right">0.007</td></tr><tr><td style="text-align:left">EURUSD-NZDUSD</td><td style="text-align:right">7148</td><td style="text-align:right">0.551</td><td style="text-align:right">-0.036</td><td style="text-align:right">-0.587</td><td style="text-align:right">0.612</td><td style="text-align:right">0.524</td><td style="text-align:right">-0.059</td><td style="text-align:right">-0.013</td></tr><tr><td style="text-align:left">EURUSD-USDJPY</td><td style="text-align:right">7148</td><td style="text-align:right">-0.300</td><td style="text-align:right">-0.215</td><td style="text-align:right">0.086</td><td style="text-align:right">0.564</td><td style="text-align:right">0.047</td><td style="text-align:right">-0.237</td><td style="text-align:right">-0.192</td></tr><tr><td style="text-align:left">EURUSD-USDCHF</td><td style="text-align:right">7148</td><td style="text-align:right">-0.748</td><td style="text-align:right">-0.620</td><td style="text-align:right">0.128</td><td style="text-align:right">0.473</td><td style="text-align:right">0.286</td><td style="text-align:right">-0.634</td><td style="text-align:right">-0.605</td></tr><tr><td style="text-align:left">EURUSD-USDCAD</td><td style="text-align:right">7148</td><td style="text-align:right">-0.457</td><td style="text-align:right">-0.022</td><td style="text-align:right">0.435</td><td style="text-align:right">0.594</td><td style="text-align:right">0.334</td><td style="text-align:right">-0.046</td><td style="text-align:right">0.001</td></tr><tr><td style="text-align:left">GBPUSD-AUDUSD</td><td style="text-align:right">7148</td><td style="text-align:right">0.541</td><td style="text-align:right">0.157</td><td style="text-align:right">-0.384</td><td style="text-align:right">0.416</td><td style="text-align:right">0.499</td><td style="text-align:right">0.134</td><td style="text-align:right">0.179</td></tr><tr><td style="text-align:left">GBPUSD-NZDUSD</td><td style="text-align:right">7148</td><td style="text-align:right">0.532</td><td style="text-align:right">0.137</td><td style="text-align:right">-0.395</td><td style="text-align:right">0.420</td><td style="text-align:right">0.501</td><td style="text-align:right">0.114</td><td style="text-align:right">0.160</td></tr><tr><td style="text-align:left">GBPUSD-USDJPY</td><td style="text-align:right">7148</td><td style="text-align:right">-0.197</td><td style="text-align:right">-0.056</td><td style="text-align:right">0.140</td><td style="text-align:right">0.439</td><td style="text-align:right">0.055</td><td style="text-align:right">-0.079</td><td style="text-align:right">-0.033</td></tr><tr><td style="text-align:left">GBPUSD-USDCHF</td><td style="text-align:right">7148</td><td style="text-align:right">-0.485</td><td style="text-align:right">-0.166</td><td style="text-align:right">0.319</td><td style="text-align:right">0.415</td><td style="text-align:right">0.353</td><td style="text-align:right">-0.188</td><td style="text-align:right">-0.143</td></tr><tr><td style="text-align:left">GBPUSD-USDCAD</td><td style="text-align:right">7148</td><td style="text-align:right">-0.457</td><td style="text-align:right">-0.146</td><td style="text-align:right">0.311</td><td style="text-align:right">0.418</td><td style="text-align:right">0.318</td><td style="text-align:right">-0.168</td><td style="text-align:right">-0.123</td></tr><tr><td style="text-align:left">AUDUSD-NZDUSD</td><td style="text-align:right">7148</td><td style="text-align:right">0.829</td><td style="text-align:right">0.735</td><td style="text-align:right">-0.094</td><td style="text-align:right">0.354</td><td style="text-align:right">0.353</td><td style="text-align:right">0.724</td><td style="text-align:right">0.746</td></tr><tr><td style="text-align:left">AUDUSD-USDJPY</td><td style="text-align:right">7148</td><td style="text-align:right">-0.087</td><td style="text-align:right">0.198</td><td style="text-align:right">0.285</td><td style="text-align:right">0.583</td><td style="text-align:right">0.075</td><td style="text-align:right">0.176</td><td style="text-align:right">0.220</td></tr><tr><td style="text-align:left">AUDUSD-USDCHF</td><td style="text-align:right">7148</td><td style="text-align:right">-0.380</td><td style="text-align:right">0.219</td><td style="text-align:right">0.599</td><td style="text-align:right">0.572</td><td style="text-align:right">0.419</td><td style="text-align:right">0.197</td><td style="text-align:right">0.241</td></tr><tr><td style="text-align:left">AUDUSD-USDCAD</td><td style="text-align:right">7148</td><td style="text-align:right">-0.648</td><td style="text-align:right">-0.485</td><td style="text-align:right">0.163</td><td style="text-align:right">0.441</td><td style="text-align:right">0.254</td><td style="text-align:right">-0.502</td><td style="text-align:right">-0.467</td></tr><tr><td style="text-align:left">NZDUSD-USDJPY</td><td style="text-align:right">7148</td><td style="text-align:right">-0.134</td><td style="text-align:right">0.093</td><td style="text-align:right">0.227</td><td style="text-align:right">0.558</td><td style="text-align:right">0.067</td><td style="text-align:right">0.070</td><td style="text-align:right">0.116</td></tr><tr><td style="text-align:left">NZDUSD-USDCHF</td><td style="text-align:right">7148</td><td style="text-align:right">-0.394</td><td style="text-align:right">0.174</td><td style="text-align:right">0.567</td><td style="text-align:right">0.562</td><td style="text-align:right">0.413</td><td style="text-align:right">0.151</td><td style="text-align:right">0.196</td></tr><tr><td style="text-align:left">NZDUSD-USDCAD</td><td style="text-align:right">7148</td><td style="text-align:right">-0.588</td><td style="text-align:right">-0.372</td><td style="text-align:right">0.217</td><td style="text-align:right">0.460</td><td style="text-align:right">0.275</td><td style="text-align:right">-0.392</td><td style="text-align:right">-0.352</td></tr><tr><td style="text-align:left">USDJPY-USDCHF</td><td style="text-align:right">7148</td><td style="text-align:right">0.398</td><td style="text-align:right">0.366</td><td style="text-align:right">-0.033</td><td style="text-align:right">0.032</td><td style="text-align:right">0.308</td><td style="text-align:right">0.346</td><td style="text-align:right">0.386</td></tr><tr><td style="text-align:left">USDJPY-USDCAD</td><td style="text-align:right">7148</td><td style="text-align:right">0.026</td><td style="text-align:right">-0.183</td><td style="text-align:right">-0.209</td><td style="text-align:right">0.071</td><td style="text-align:right">0.382</td><td style="text-align:right">-0.205</td><td style="text-align:right">-0.160</td></tr><tr><td style="text-align:left">USDCHF-USDCAD</td><td style="text-align:right">7148</td><td style="text-align:right">0.304</td><td style="text-align:right">-0.119</td><td style="text-align:right">-0.423</td><td style="text-align:right">0.395</td><td style="text-align:right">0.362</td><td style="text-align:right">-0.142</td><td style="text-align:right">-0.096</td></tr></tbody></table>
+
+<p>
+Pace metrics for each window. Path agreement is correlation of the two rolling
+paths. Pace agreement is correlation of their first differences (headline for
+“respects the pace”). Sign agreement is the share of overlapping days with the
+same sign.
+</p>
+<table><thead><tr><th>Pair</th><th>W</th><th>Path</th><th>Pace</th><th>Sign</th><th>Mean gap</th><th>Mean |gap|</th></tr></thead><tbody><tr><td style="text-align:left">EURUSD-GBPUSD</td><td style="text-align:right">20</td><td style="text-align:right">0.592</td><td style="text-align:right">0.614</td><td style="text-align:right">91.1%</td><td style="text-align:right">-0.289</td><td style="text-align:right">0.297</td></tr><tr><td style="text-align:left">EURUSD-GBPUSD</td><td style="text-align:right">60</td><td style="text-align:right">0.558</td><td style="text-align:right">0.658</td><td style="text-align:right">95.6%</td><td style="text-align:right">-0.286</td><td style="text-align:right">0.287</td></tr><tr><td style="text-align:left">EURUSD-GBPUSD</td><td style="text-align:right">100</td><td style="text-align:right">0.550</td><td style="text-align:right">0.652</td><td style="text-align:right">96.8%</td><td style="text-align:right">-0.285</td><td style="text-align:right">0.285</td></tr><tr><td style="text-align:left">EURUSD-AUDUSD</td><td style="text-align:right">20</td><td style="text-align:right">0.577</td><td style="text-align:right">0.539</td><td style="text-align:right">45.1%</td><td style="text-align:right">-0.608</td><td style="text-align:right">0.610</td></tr><tr><td style="text-align:left">EURUSD-AUDUSD</td><td style="text-align:right">60</td><td style="text-align:right">0.562</td><td style="text-align:right">0.548</td><td style="text-align:right">39.8%</td><td style="text-align:right">-0.612</td><td style="text-align:right">0.612</td></tr><tr><td style="text-align:left">EURUSD-AUDUSD</td><td style="text-align:right">100</td><td style="text-align:right">0.547</td><td style="text-align:right">0.510</td><td style="text-align:right">37.6%</td><td style="text-align:right">-0.612</td><td style="text-align:right">0.612</td></tr><tr><td style="text-align:left">EURUSD-NZDUSD</td><td style="text-align:right">20</td><td style="text-align:right">0.552</td><td style="text-align:right">0.540</td><td style="text-align:right">43.7%</td><td style="text-align:right">-0.595</td><td style="text-align:right">0.596</td></tr><tr><td style="text-align:left">EURUSD-NZDUSD</td><td style="text-align:right">60</td><td style="text-align:right">0.504</td><td style="text-align:right">0.550</td><td style="text-align:right">38.8%</td><td style="text-align:right">-0.595</td><td style="text-align:right">0.595</td></tr><tr><td style="text-align:left">EURUSD-NZDUSD</td><td style="text-align:right">100</td><td style="text-align:right">0.464</td><td style="text-align:right">0.514</td><td style="text-align:right">37.1%</td><td style="text-align:right">-0.595</td><td style="text-align:right">0.595</td></tr><tr><td style="text-align:left">EURUSD-USDJPY</td><td style="text-align:right">20</td><td style="text-align:right">0.439</td><td style="text-align:right">0.591</td><td style="text-align:right">74.0%</td><td style="text-align:right">0.189</td><td style="text-align:right">0.305</td></tr><tr><td style="text-align:left">EURUSD-USDJPY</td><td style="text-align:right">60</td><td style="text-align:right">0.373</td><td style="text-align:right">0.586</td><td style="text-align:right">78.7%</td><td style="text-align:right">0.175</td><td style="text-align:right">0.269</td></tr><tr><td style="text-align:left">EURUSD-USDJPY</td><td style="text-align:right">100</td><td style="text-align:right">0.352</td><td style="text-align:right">0.568</td><td style="text-align:right">81.7%</td><td style="text-align:right">0.166</td><td style="text-align:right">0.257</td></tr><tr><td style="text-align:left">EURUSD-USDCHF</td><td style="text-align:right">20</td><td style="text-align:right">0.843</td><td style="text-align:right">0.727</td><td style="text-align:right">98.4%</td><td style="text-align:right">0.115</td><td style="text-align:right">0.124</td></tr><tr><td style="text-align:left">EURUSD-USDCHF</td><td style="text-align:right">60</td><td style="text-align:right">0.896</td><td style="text-align:right">0.861</td><td style="text-align:right">99.9%</td><td style="text-align:right">0.114</td><td style="text-align:right">0.116</td></tr><tr><td style="text-align:left">EURUSD-USDCHF</td><td style="text-align:right">100</td><td style="text-align:right">0.917</td><td style="text-align:right">0.921</td><td style="text-align:right">98.8%</td><td style="text-align:right">0.115</td><td style="text-align:right">0.116</td></tr><tr><td style="text-align:left">EURUSD-USDCAD</td><td style="text-align:right">20</td><td style="text-align:right">0.621</td><td style="text-align:right">0.605</td><td style="text-align:right">60.1%</td><td style="text-align:right">0.406</td><td style="text-align:right">0.414</td></tr><tr><td style="text-align:left">EURUSD-USDCAD</td><td style="text-align:right">60</td><td style="text-align:right">0.656</td><td style="text-align:right">0.614</td><td style="text-align:right">56.5%</td><td style="text-align:right">0.415</td><td style="text-align:right">0.415</td></tr><tr><td style="text-align:left">EURUSD-USDCAD</td><td style="text-align:right">100</td><td style="text-align:right">0.664</td><td style="text-align:right">0.591</td><td style="text-align:right">57.2%</td><td style="text-align:right">0.418</td><td style="text-align:right">0.418</td></tr><tr><td style="text-align:left">GBPUSD-AUDUSD</td><td style="text-align:right">20</td><td style="text-align:right">0.621</td><td style="text-align:right">0.620</td><td style="text-align:right">65.7%</td><td style="text-align:right">-0.433</td><td style="text-align:right">0.437</td></tr><tr><td style="text-align:left">GBPUSD-AUDUSD</td><td style="text-align:right">60</td><td style="text-align:right">0.627</td><td style="text-align:right">0.642</td><td style="text-align:right">67.0%</td><td style="text-align:right">-0.428</td><td style="text-align:right">0.428</td></tr><tr><td style="text-align:left">GBPUSD-AUDUSD</td><td style="text-align:right">100</td><td style="text-align:right">0.626</td><td style="text-align:right">0.646</td><td style="text-align:right">69.0%</td><td style="text-align:right">-0.425</td><td style="text-align:right">0.425</td></tr><tr><td style="text-align:left">GBPUSD-NZDUSD</td><td style="text-align:right">20</td><td style="text-align:right">0.661</td><td style="text-align:right">0.638</td><td style="text-align:right">68.4%</td><td style="text-align:right">-0.409</td><td style="text-align:right">0.412</td></tr><tr><td style="text-align:left">GBPUSD-NZDUSD</td><td style="text-align:right">60</td><td style="text-align:right">0.697</td><td style="text-align:right">0.638</td><td style="text-align:right">70.0%</td><td style="text-align:right">-0.403</td><td style="text-align:right">0.404</td></tr><tr><td style="text-align:left">GBPUSD-NZDUSD</td><td style="text-align:right">100</td><td style="text-align:right">0.712</td><td style="text-align:right">0.643</td><td style="text-align:right">73.0%</td><td style="text-align:right">-0.403</td><td style="text-align:right">0.403</td></tr><tr><td style="text-align:left">GBPUSD-USDJPY</td><td style="text-align:right">20</td><td style="text-align:right">0.610</td><td style="text-align:right">0.689</td><td style="text-align:right">72.5%</td><td style="text-align:right">0.208</td><td style="text-align:right">0.274</td></tr><tr><td style="text-align:left">GBPUSD-USDJPY</td><td style="text-align:right">60</td><td style="text-align:right">0.570</td><td style="text-align:right">0.708</td><td style="text-align:right">69.3%</td><td style="text-align:right">0.207</td><td style="text-align:right">0.252</td></tr><tr><td style="text-align:left">GBPUSD-USDJPY</td><td style="text-align:right">100</td><td style="text-align:right">0.562</td><td style="text-align:right">0.713</td><td style="text-align:right">68.7%</td><td style="text-align:right">0.203</td><td style="text-align:right">0.245</td></tr><tr><td style="text-align:left">GBPUSD-USDCHF</td><td style="text-align:right">20</td><td style="text-align:right">0.639</td><td style="text-align:right">0.667</td><td style="text-align:right">82.6%</td><td style="text-align:right">0.315</td><td style="text-align:right">0.321</td></tr><tr><td style="text-align:left">GBPUSD-USDCHF</td><td style="text-align:right">60</td><td style="text-align:right">0.685</td><td style="text-align:right">0.696</td><td style="text-align:right">84.6%</td><td style="text-align:right">0.314</td><td style="text-align:right">0.315</td></tr><tr><td style="text-align:left">GBPUSD-USDCHF</td><td style="text-align:right">100</td><td style="text-align:right">0.710</td><td style="text-align:right">0.713</td><td style="text-align:right">87.7%</td><td style="text-align:right">0.315</td><td style="text-align:right">0.315</td></tr><tr><td style="text-align:left">GBPUSD-USDCAD</td><td style="text-align:right">20</td><td style="text-align:right">0.666</td><td style="text-align:right">0.689</td><td style="text-align:right">71.4%</td><td style="text-align:right">0.315</td><td style="text-align:right">0.324</td></tr><tr><td style="text-align:left">GBPUSD-USDCAD</td><td style="text-align:right">60</td><td style="text-align:right">0.664</td><td style="text-align:right">0.696</td><td style="text-align:right">73.7%</td><td style="text-align:right">0.320</td><td style="text-align:right">0.321</td></tr><tr><td style="text-align:left">GBPUSD-USDCAD</td><td style="text-align:right">100</td><td style="text-align:right">0.661</td><td style="text-align:right">0.696</td><td style="text-align:right">76.4%</td><td style="text-align:right">0.322</td><td style="text-align:right">0.322</td></tr><tr><td style="text-align:left">AUDUSD-NZDUSD</td><td style="text-align:right">20</td><td style="text-align:right">0.740</td><td style="text-align:right">0.698</td><td style="text-align:right">99.6%</td><td style="text-align:right">-0.121</td><td style="text-align:right">0.127</td></tr><tr><td style="text-align:left">AUDUSD-NZDUSD</td><td style="text-align:right">60</td><td style="text-align:right">0.764</td><td style="text-align:right">0.751</td><td style="text-align:right">100.0%</td><td style="text-align:right">-0.117</td><td style="text-align:right">0.118</td></tr><tr><td style="text-align:left">AUDUSD-NZDUSD</td><td style="text-align:right">100</td><td style="text-align:right">0.769</td><td style="text-align:right">0.750</td><td style="text-align:right">100.0%</td><td style="text-align:right">-0.113</td><td style="text-align:right">0.113</td></tr><tr><td style="text-align:left">AUDUSD-USDJPY</td><td style="text-align:right">20</td><td style="text-align:right">0.713</td><td style="text-align:right">0.613</td><td style="text-align:right">64.2%</td><td style="text-align:right">0.300</td><td style="text-align:right">0.338</td></tr><tr><td style="text-align:left">AUDUSD-USDJPY</td><td style="text-align:right">60</td><td style="text-align:right">0.745</td><td style="text-align:right">0.661</td><td style="text-align:right">60.4%</td><td style="text-align:right">0.299</td><td style="text-align:right">0.317</td></tr><tr><td style="text-align:left">AUDUSD-USDJPY</td><td style="text-align:right">100</td><td style="text-align:right">0.745</td><td style="text-align:right">0.671</td><td style="text-align:right">57.9%</td><td style="text-align:right">0.301</td><td style="text-align:right">0.313</td></tr><tr><td style="text-align:left">AUDUSD-USDCHF</td><td style="text-align:right">20</td><td style="text-align:right">0.602</td><td style="text-align:right">0.550</td><td style="text-align:right">30.7%</td><td style="text-align:right">0.654</td><td style="text-align:right">0.654</td></tr><tr><td style="text-align:left">AUDUSD-USDCHF</td><td style="text-align:right">60</td><td style="text-align:right">0.598</td><td style="text-align:right">0.568</td><td style="text-align:right">16.1%</td><td style="text-align:right">0.663</td><td style="text-align:right">0.663</td></tr><tr><td style="text-align:left">AUDUSD-USDCHF</td><td style="text-align:right">100</td><td style="text-align:right">0.563</td><td style="text-align:right">0.513</td><td style="text-align:right">9.7%</td><td style="text-align:right">0.666</td><td style="text-align:right">0.666</td></tr><tr><td style="text-align:left">AUDUSD-USDCAD</td><td style="text-align:right">20</td><td style="text-align:right">0.697</td><td style="text-align:right">0.661</td><td style="text-align:right">93.9%</td><td style="text-align:right">0.191</td><td style="text-align:right">0.206</td></tr><tr><td style="text-align:left">AUDUSD-USDCAD</td><td style="text-align:right">60</td><td style="text-align:right">0.729</td><td style="text-align:right">0.711</td><td style="text-align:right">98.7%</td><td style="text-align:right">0.181</td><td style="text-align:right">0.186</td></tr><tr><td style="text-align:left">AUDUSD-USDCAD</td><td style="text-align:right">100</td><td style="text-align:right">0.743</td><td style="text-align:right">0.697</td><td style="text-align:right">99.4%</td><td style="text-align:right">0.178</td><td style="text-align:right">0.181</td></tr><tr><td style="text-align:left">NZDUSD-USDJPY</td><td style="text-align:right">20</td><td style="text-align:right">0.676</td><td style="text-align:right">0.644</td><td style="text-align:right">68.7%</td><td style="text-align:right">0.264</td><td style="text-align:right">0.311</td></tr><tr><td style="text-align:left">NZDUSD-USDJPY</td><td style="text-align:right">60</td><td style="text-align:right">0.715</td><td style="text-align:right">0.670</td><td style="text-align:right">65.8%</td><td style="text-align:right">0.265</td><td style="text-align:right">0.286</td></tr><tr><td style="text-align:left">NZDUSD-USDJPY</td><td style="text-align:right">100</td><td style="text-align:right">0.711</td><td style="text-align:right">0.657</td><td style="text-align:right">61.4%</td><td style="text-align:right">0.264</td><td style="text-align:right">0.285</td></tr><tr><td style="text-align:left">NZDUSD-USDCHF</td><td style="text-align:right">20</td><td style="text-align:right">0.601</td><td style="text-align:right">0.570</td><td style="text-align:right">33.5%</td><td style="text-align:right">0.612</td><td style="text-align:right">0.612</td></tr><tr><td style="text-align:left">NZDUSD-USDCHF</td><td style="text-align:right">60</td><td style="text-align:right">0.572</td><td style="text-align:right">0.581</td><td style="text-align:right">18.7%</td><td style="text-align:right">0.616</td><td style="text-align:right">0.616</td></tr><tr><td style="text-align:left">NZDUSD-USDCHF</td><td style="text-align:right">100</td><td style="text-align:right">0.538</td><td style="text-align:right">0.508</td><td style="text-align:right">13.6%</td><td style="text-align:right">0.618</td><td style="text-align:right">0.618</td></tr><tr><td style="text-align:left">NZDUSD-USDCAD</td><td style="text-align:right">20</td><td style="text-align:right">0.666</td><td style="text-align:right">0.677</td><td style="text-align:right">87.8%</td><td style="text-align:right">0.241</td><td style="text-align:right">0.254</td></tr><tr><td style="text-align:left">NZDUSD-USDCAD</td><td style="text-align:right">60</td><td style="text-align:right">0.620</td><td style="text-align:right">0.694</td><td style="text-align:right">93.6%</td><td style="text-align:right">0.236</td><td style="text-align:right">0.241</td></tr><tr><td style="text-align:left">NZDUSD-USDCAD</td><td style="text-align:right">100</td><td style="text-align:right">0.620</td><td style="text-align:right">0.685</td><td style="text-align:right">96.2%</td><td style="text-align:right">0.234</td><td style="text-align:right">0.237</td></tr><tr><td style="text-align:left">USDJPY-USDCHF</td><td style="text-align:right">20</td><td style="text-align:right">0.585</td><td style="text-align:right">0.671</td><td style="text-align:right">85.2%</td><td style="text-align:right">-0.128</td><td style="text-align:right">0.224</td></tr><tr><td style="text-align:left">USDJPY-USDCHF</td><td style="text-align:right">60</td><td style="text-align:right">0.567</td><td style="text-align:right">0.683</td><td style="text-align:right">91.9%</td><td style="text-align:right">-0.114</td><td style="text-align:right">0.189</td></tr><tr><td style="text-align:left">USDJPY-USDCHF</td><td style="text-align:right">100</td><td style="text-align:right">0.564</td><td style="text-align:right">0.664</td><td style="text-align:right">94.2%</td><td style="text-align:right">-0.106</td><td style="text-align:right">0.178</td></tr><tr><td style="text-align:left">USDJPY-USDCAD</td><td style="text-align:right">20</td><td style="text-align:right">0.684</td><td style="text-align:right">0.679</td><td style="text-align:right">63.9%</td><td style="text-align:right">-0.251</td><td style="text-align:right">0.293</td></tr><tr><td style="text-align:left">USDJPY-USDCAD</td><td style="text-align:right">60</td><td style="text-align:right">0.699</td><td style="text-align:right">0.702</td><td style="text-align:right">58.5%</td><td style="text-align:right">-0.251</td><td style="text-align:right">0.271</td></tr><tr><td style="text-align:left">USDJPY-USDCAD</td><td style="text-align:right">100</td><td style="text-align:right">0.684</td><td style="text-align:right">0.690</td><td style="text-align:right">58.3%</td><td style="text-align:right">-0.250</td><td style="text-align:right">0.267</td></tr><tr><td style="text-align:left">USDCHF-USDCAD</td><td style="text-align:right">20</td><td style="text-align:right">0.677</td><td style="text-align:right">0.644</td><td style="text-align:right">51.6%</td><td style="text-align:right">-0.406</td><td style="text-align:right">0.414</td></tr><tr><td style="text-align:left">USDCHF-USDCAD</td><td style="text-align:right">60</td><td style="text-align:right">0.723</td><td style="text-align:right">0.663</td><td style="text-align:right">42.3%</td><td style="text-align:right">-0.416</td><td style="text-align:right">0.417</td></tr><tr><td style="text-align:left">USDCHF-USDCAD</td><td style="text-align:right">100</td><td style="text-align:right">0.730</td><td style="text-align:right">0.634</td><td style="text-align:right">35.7%</td><td style="text-align:right">-0.419</td><td style="text-align:right">0.419</td></tr></tbody></table>
+
+<h2 id="pair-charts">Pair charts (raw vs partial)</h2>
+<p>
+Each figure has three panels (W = 20, 60, 100). Blue is raw rolling Pearson.
+Orange is rolling partial with the USD factor removed inside the window.
+</p>
+
+<div class="chart-block">
+<h3>EURUSD-GBPUSD</h3>
+<img src="outputs/figures/EURUSD-GBPUSD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: EURUSD-GBPUSD"/>
+<p class="caption">
+Full-sample r = 0.642,
+rho_partial = 0.344,
+gap = -0.298.
+W=60 path agreement = 0.558,
+pace agreement = 0.658,
+sign agreement = 95.6%,
+mean |gap| = 0.287.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>EURUSD-AUDUSD</h3>
+<img src="outputs/figures/EURUSD-AUDUSD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: EURUSD-AUDUSD"/>
+<p class="caption">
+Full-sample r = 0.557,
+rho_partial = -0.016,
+gap = -0.573.
+W=60 path agreement = 0.562,
+pace agreement = 0.548,
+sign agreement = 39.8%,
+mean |gap| = 0.612.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>EURUSD-NZDUSD</h3>
+<img src="outputs/figures/EURUSD-NZDUSD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: EURUSD-NZDUSD"/>
+<p class="caption">
+Full-sample r = 0.551,
+rho_partial = -0.036,
+gap = -0.587.
+W=60 path agreement = 0.504,
+pace agreement = 0.550,
+sign agreement = 38.8%,
+mean |gap| = 0.595.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>EURUSD-USDJPY</h3>
+<img src="outputs/figures/EURUSD-USDJPY_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: EURUSD-USDJPY"/>
+<p class="caption">
+Full-sample r = -0.300,
+rho_partial = -0.215,
+gap = 0.086.
+W=60 path agreement = 0.373,
+pace agreement = 0.586,
+sign agreement = 78.7%,
+mean |gap| = 0.269.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>EURUSD-USDCHF</h3>
+<img src="outputs/figures/EURUSD-USDCHF_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: EURUSD-USDCHF"/>
+<p class="caption">
+Full-sample r = -0.748,
+rho_partial = -0.620,
+gap = 0.128.
+W=60 path agreement = 0.896,
+pace agreement = 0.861,
+sign agreement = 99.9%,
+mean |gap| = 0.116.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>EURUSD-USDCAD</h3>
+<img src="outputs/figures/EURUSD-USDCAD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: EURUSD-USDCAD"/>
+<p class="caption">
+Full-sample r = -0.457,
+rho_partial = -0.022,
+gap = 0.435.
+W=60 path agreement = 0.656,
+pace agreement = 0.614,
+sign agreement = 56.5%,
+mean |gap| = 0.415.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>GBPUSD-AUDUSD</h3>
+<img src="outputs/figures/GBPUSD-AUDUSD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: GBPUSD-AUDUSD"/>
+<p class="caption">
+Full-sample r = 0.541,
+rho_partial = 0.157,
+gap = -0.384.
+W=60 path agreement = 0.627,
+pace agreement = 0.642,
+sign agreement = 67.0%,
+mean |gap| = 0.428.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>GBPUSD-NZDUSD</h3>
+<img src="outputs/figures/GBPUSD-NZDUSD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: GBPUSD-NZDUSD"/>
+<p class="caption">
+Full-sample r = 0.532,
+rho_partial = 0.137,
+gap = -0.395.
+W=60 path agreement = 0.697,
+pace agreement = 0.638,
+sign agreement = 70.0%,
+mean |gap| = 0.404.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>GBPUSD-USDJPY</h3>
+<img src="outputs/figures/GBPUSD-USDJPY_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: GBPUSD-USDJPY"/>
+<p class="caption">
+Full-sample r = -0.197,
+rho_partial = -0.056,
+gap = 0.140.
+W=60 path agreement = 0.570,
+pace agreement = 0.708,
+sign agreement = 69.3%,
+mean |gap| = 0.252.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>GBPUSD-USDCHF</h3>
+<img src="outputs/figures/GBPUSD-USDCHF_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: GBPUSD-USDCHF"/>
+<p class="caption">
+Full-sample r = -0.485,
+rho_partial = -0.166,
+gap = 0.319.
+W=60 path agreement = 0.685,
+pace agreement = 0.696,
+sign agreement = 84.6%,
+mean |gap| = 0.315.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>GBPUSD-USDCAD</h3>
+<img src="outputs/figures/GBPUSD-USDCAD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: GBPUSD-USDCAD"/>
+<p class="caption">
+Full-sample r = -0.457,
+rho_partial = -0.146,
+gap = 0.311.
+W=60 path agreement = 0.664,
+pace agreement = 0.696,
+sign agreement = 73.7%,
+mean |gap| = 0.321.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>AUDUSD-NZDUSD</h3>
+<img src="outputs/figures/AUDUSD-NZDUSD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: AUDUSD-NZDUSD"/>
+<p class="caption">
+Full-sample r = 0.829,
+rho_partial = 0.735,
+gap = -0.094.
+W=60 path agreement = 0.764,
+pace agreement = 0.751,
+sign agreement = 100.0%,
+mean |gap| = 0.118.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>AUDUSD-USDJPY</h3>
+<img src="outputs/figures/AUDUSD-USDJPY_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: AUDUSD-USDJPY"/>
+<p class="caption">
+Full-sample r = -0.087,
+rho_partial = 0.198,
+gap = 0.285.
+W=60 path agreement = 0.745,
+pace agreement = 0.661,
+sign agreement = 60.4%,
+mean |gap| = 0.317.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>AUDUSD-USDCHF</h3>
+<img src="outputs/figures/AUDUSD-USDCHF_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: AUDUSD-USDCHF"/>
+<p class="caption">
+Full-sample r = -0.380,
+rho_partial = 0.219,
+gap = 0.599.
+W=60 path agreement = 0.598,
+pace agreement = 0.568,
+sign agreement = 16.1%,
+mean |gap| = 0.663.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>AUDUSD-USDCAD</h3>
+<img src="outputs/figures/AUDUSD-USDCAD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: AUDUSD-USDCAD"/>
+<p class="caption">
+Full-sample r = -0.648,
+rho_partial = -0.485,
+gap = 0.163.
+W=60 path agreement = 0.729,
+pace agreement = 0.711,
+sign agreement = 98.7%,
+mean |gap| = 0.186.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>NZDUSD-USDJPY</h3>
+<img src="outputs/figures/NZDUSD-USDJPY_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: NZDUSD-USDJPY"/>
+<p class="caption">
+Full-sample r = -0.134,
+rho_partial = 0.093,
+gap = 0.227.
+W=60 path agreement = 0.715,
+pace agreement = 0.670,
+sign agreement = 65.8%,
+mean |gap| = 0.286.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>NZDUSD-USDCHF</h3>
+<img src="outputs/figures/NZDUSD-USDCHF_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: NZDUSD-USDCHF"/>
+<p class="caption">
+Full-sample r = -0.394,
+rho_partial = 0.174,
+gap = 0.567.
+W=60 path agreement = 0.572,
+pace agreement = 0.581,
+sign agreement = 18.7%,
+mean |gap| = 0.616.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>NZDUSD-USDCAD</h3>
+<img src="outputs/figures/NZDUSD-USDCAD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: NZDUSD-USDCAD"/>
+<p class="caption">
+Full-sample r = -0.588,
+rho_partial = -0.372,
+gap = 0.217.
+W=60 path agreement = 0.620,
+pace agreement = 0.694,
+sign agreement = 93.6%,
+mean |gap| = 0.241.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>USDJPY-USDCHF</h3>
+<img src="outputs/figures/USDJPY-USDCHF_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: USDJPY-USDCHF"/>
+<p class="caption">
+Full-sample r = 0.398,
+rho_partial = 0.366,
+gap = -0.033.
+W=60 path agreement = 0.567,
+pace agreement = 0.683,
+sign agreement = 91.9%,
+mean |gap| = 0.189.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>USDJPY-USDCAD</h3>
+<img src="outputs/figures/USDJPY-USDCAD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: USDJPY-USDCAD"/>
+<p class="caption">
+Full-sample r = 0.026,
+rho_partial = -0.183,
+gap = -0.209.
+W=60 path agreement = 0.699,
+pace agreement = 0.702,
+sign agreement = 58.5%,
+mean |gap| = 0.271.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>USDCHF-USDCAD</h3>
+<img src="outputs/figures/USDCHF-USDCAD_Rolling_raw_vs_partial.png" alt="Rolling raw vs partial: USDCHF-USDCAD"/>
+<p class="caption">
+Full-sample r = 0.304,
+rho_partial = -0.119,
+gap = -0.423.
+W=60 path agreement = 0.723,
+pace agreement = 0.663,
+sign agreement = 42.3%,
+mean |gap| = 0.417.
+</p>
+</div>
+
+
+<h2 id="how-to-read">How to read</h2>
+<ul>
+<li><strong>Full-sample gap</strong> — level shift after USD removal. A large
+|gap| does not by itself say the rolling path lost its tempo.</li>
+<li><strong>Path agreement</strong> — whether the residual correlation series
+tracks the same ups and downs as raw rolling r.</li>
+<li><strong>Pace agreement</strong> — whether day-to-day changes of the two
+series move together. This is the main “respects the pace” score. Headline
+window is W = 60.</li>
+<li><strong>Sign agreement</strong> — fraction of days where raw and partial
+share the same sign. Useful when a level shift flips the band.</li>
+<li><strong>W = 20 / 60 / 100</strong> — short / medium / longer pace. Short
+windows are noisier; longer windows are slower.</li>
+<li>Scores are symmetric in the two symbols. They do not prove cause,
+lead-lag, or a hedge.</li>
+</ul>
+
+<h2 id="conclusion">Conclusion</h2>
+<div class="conclusion">
+<p>
+<strong>What we got to know.</strong>
+Removing the USD factor changes more than the level. On W=60, path and pace agreement with raw rolling Pearson are often weak, so the residual tempo can diverge from the raw correlation path.
+Across the 21 pairs, mean W=60 path agreement is
+0.644 and mean W=60 pace agreement is
+0.661.
+1 pairs sit at pace agreement ≥ 0.85;
+16 sit below 0.70.
+Median absolute full-sample gap is 0.298.
+</p>
+<p>
+<strong>Where the level moves most.</strong>
+Largest |rho_partial − r| gaps: AUDUSD-USDCHF (gap=0.5994, rho_partial=0.2191, r=-0.3803); EURUSD-NZDUSD (gap=-0.5869, rho_partial=-0.0359, r=0.5510); EURUSD-AUDUSD (gap=-0.5731, rho_partial=-0.0159, r=0.5572).
+Those pairs show that a strong raw Pearson can be largely a shared USD move;
+the residual link can sit near zero or even flip sign. That is a level story.
+</p>
+<p>
+<strong>Where the pace holds or breaks.</strong>
+Highest W=60 pace agreement:
+EURUSD-USDCHF
+(0.8608).
+Lowest W=60 pace agreement:
+EURUSD-AUDUSD
+(0.5477).
+Strongest full-sample residual link:
+AUDUSD-NZDUSD
+(rho_partial=0.7351).
+Weakest (most negative):
+EURUSD-USDCHF
+(rho_partial=-0.6198).
+</p>
+<p>
+<strong>Practical takeaway for this research stream.</strong>
+Use full-sample partial to judge how much of a major–major Pearson link is
+USD. Use the W=60 pace agreement to judge whether the residual series still
+moves with the same tempo as raw rolling correlation. When pace agreement is
+high, stripping USD mainly re-levels the path. When it is low, the residual
+tempo itself diverges and needs a pair-by-pair read of the three-panel chart.
+This page is a reading of these 21 pairs only. It is not a trading signal.
+</p>
+</div>
+
+<p class="note">
+Source files: <code>NOTES.md</code>, <code>run_seven.py</code>,
+<code>outputs/index.csv</code>, <code>outputs/figures/</code>.
+Open this page from the folder so the image paths resolve.
+</p>
+</body>
+</html>

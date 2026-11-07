@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>EURGBP / EURCHF / NZDUSD — rolling correlation dig</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 24px; color: #222; max-width: 1100px; }
+h1 { font-size: 1.35rem; margin-bottom: 0.4rem; }
+h2 { font-size: 1.1rem; margin-top: 1.8rem; }
+h3 { font-size: 1rem; margin-top: 1.2rem; }
+p { line-height: 1.5; }
+ul, ol { line-height: 1.5; }
+img { max-width: 100%; height: auto; border: 1px solid #ddd; margin: 0.6rem 0 1rem; }
+table { border-collapse: collapse; font-size: 0.88rem; margin-top: 0.6rem; width: 100%; }
+th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+th { background: #f3f3f3; }
+.note { color: #555; font-size: 0.92rem; }
+.lead { font-size: 1.05rem; background: #f7f9fc; border-left: 4px solid #1565c0; padding: 12px 14px; }
+.conclusion { background: #f4f7f4; border-left: 4px solid #2e7d32; padding: 12px 14px; }
+code { font-family: Consolas, monospace; font-size: 0.92em; background: #f5f5f5; padding: 1px 4px; }
+.chart-block { margin-bottom: 1.5rem; }
+.caption { color: #555; font-size: 0.9rem; margin-top: -0.4rem; margin-bottom: 1rem; }
+nav { margin: 1rem 0 1.5rem; font-size: 0.92rem; }
+nav a { margin-right: 1rem; color: #1565c0; }
+</style>
+</head>
+<body>
+<h1>EURGBP / EURCHF / NZDUSD — three-cross rolling dig</h1>
+<p class="lead">
+Across the full history, none of these three crosses sits in a stable high-positive
+or high-negative band. Full-sample Pearson r is near zero for all three
+(about 0.09, 0.04, and 0.14). Rolling windows 20 / 60 / 100 wander around zero,
+spike briefly above |0.5|, and fall back. That matches the reason this dig was
+opened: these names are not “always correlated” pairs; they are quiet on average
+and noisy in short windows.
+</p>
+<p class="note">
+Method 05 named dig under
+<code>05 - Rolling Correlation/eurgbp-eurchf-nzdusd/</code>.
+Not a new experiment version. Does not change rolling v001.
+Not a trade signal.
+</p>
+
+<nav>
+<a href="#why">Why</a>
+<a href="#setup">Setup</a>
+<a href="#charts">Charts</a>
+<a href="#numbers">Numbers</a>
+<a href="#how-to-read">How to read</a>
+<a href="#conclusion">Conclusion</a>
+</nav>
+
+<h2 id="why">Why this dig</h2>
+<p>
+Rolling correlation v001 ranked majors pairs into a short watchlist, a secondary
+tier, and a low-value group using full-sample Pearson r and the latest
+r<sub>20</sub> / r<sub>60</sub> / r<sub>100</sub> scores. High |r| pairs such as
+AUDUSD–NZDUSD or EURUSD–USDCHF stay in strong bands for long stretches. This
+folder asks a different question: what do the <em>rolling paths</em> look like for
+three crosses that do <em>not</em> show that behaviour —
+EURGBP, synthetic EURCHF, and NZDUSD — when they are compared with each other.
+</p>
+<ul>
+<li><strong>EURGBP</strong> — stored cross in the majors snapshot.</li>
+<li><strong>EURCHF</strong> — not stored; built from EURUSD and USDCHF (see Setup).</li>
+<li><strong>NZDUSD</strong> — stored USD major; often linked to AUDUSD, but here it is
+paired only with EURGBP and EURCHF.</li>
+</ul>
+<p>
+The three charts below are the pairwise crosses among those three series:
+EURGBP–EURCHF, EURGBP–NZDUSD, and EURCHF–NZDUSD.
+</p>
+
+<h2 id="setup">Experiment setup</h2>
+<ul>
+<li><strong>Snapshot:</strong> <code>data/snapshots/2026-11-03_majors_alpari_D1</code>
+(Alpari D1, broker suffix <code>_i</code>).</li>
+<li><strong>Bar filter:</strong> unfinished last bar dated 2026-11-03 UTC dropped
+when tick volume was under half the prior complete day. Last complete day in the
+paths: 2026-11-02.</li>
+<li><strong>Series:</strong> daily log return of close,
+<code>ln(close<sub>t</sub> / close<sub>t−1</sub>)</code>. Quote direction unchanged;
+no inversion.</li>
+<li><strong>EURCHF construction:</strong> on matched EURUSD and USDCHF dates,
+<code>EURCHF close = EURUSD close × USDCHF close</code> (CHF per EUR).
+Its log return equals the sum of the EURUSD and USDCHF log returns.</li>
+<li><strong>Statistic:</strong> rolling Pearson r with windows
+W ∈ {20, 60, 100} matched return days ending at each date t.
+The first W−1 days have no score for that window.</li>
+<li><strong>Chart style:</strong> same as rolling v001 —
+blue r<sub>20</sub>, orange r<sub>60</sub>, green r<sub>100</sub>, y-axis −1.05 to 1.05, zero line.</li>
+<li><strong>Runner:</strong> <code>run_crosses.py</code>. Charts live under
+<code>outputs/</code>.</li>
+</ul>
+
+<h2 id="charts">Rolling charts</h2>
+
+<div class="chart-block">
+<h3>1. EURGBP and EURCHF</h3>
+<img src="outputs/EURGBP-EURCHF_Rolling_D1_rolling.png" alt="Rolling Pearson r: EURGBP and EURCHF"/>
+<p class="caption">
+n = 7165 matched days (1999-01-06 to 2026-11-02). Full-sample r ≈ 0.093.
+Latest: r<sub>20</sub> ≈ 0.216, r<sub>60</sub> ≈ 0.096, r<sub>100</sub> ≈ 0.174.
+The short window flips sign often; the 60- and 100-day lines stay closer to zero
+and rarely push past |0.5|.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>2. EURGBP and NZDUSD</h3>
+<img src="outputs/EURGBP-NZDUSD_Rolling_D1_rolling.png" alt="Rolling Pearson r: EURGBP and NZDUSD"/>
+<p class="caption">
+n = 7183 matched days. Full-sample r ≈ 0.037 (same pair appears in rolling v001
+low-value as NZDUSD–EURGBP). Latest: r<sub>20</sub> ≈ −0.273, r<sub>60</sub> ≈ −0.091,
+r<sub>100</sub> ≈ −0.165. Mean rolling r across history is near zero for every window.
+</p>
+</div>
+
+<div class="chart-block">
+<h3>3. EURCHF and NZDUSD</h3>
+<img src="outputs/EURCHF-NZDUSD_Rolling_D1_rolling.png" alt="Rolling Pearson r: EURCHF and NZDUSD"/>
+<p class="caption">
+n = 7168 matched days. Full-sample r ≈ 0.135 — the strongest of the three, still weak.
+Latest: r<sub>20</sub> ≈ 0.186, r<sub>60</sub> ≈ −0.103, r<sub>100</sub> ≈ −0.180.
+Short and long windows can disagree on sign at the same date.
+</p>
+</div>
+
+<h2 id="numbers">Numbers at a glance</h2>
+<p>
+“Latest” is the last available rolling score on 2026-11-02.
+Mean / std / min / max are over all non-missing rolling scores for that window.
+“Share |r| &gt; 0.5” is the fraction of those scores with absolute value above 0.5
+(a rough “high” band used only for reading these paths).
+</p>
+
+<table>
+<thead>
+<tr>
+<th>Pair</th>
+<th>n</th>
+<th>Full-sample r</th>
+<th>Latest r<sub>20</sub></th>
+<th>Latest r<sub>60</sub></th>
+<th>Latest r<sub>100</sub></th>
+</tr>
+</thead>
+<tbody>
+<tr><td>EURGBP–EURCHF</td><td>7165</td><td>0.093</td><td>0.216</td><td>0.096</td><td>0.174</td></tr>
+<tr><td>EURGBP–NZDUSD</td><td>7183</td><td>0.037</td><td>−0.273</td><td>−0.091</td><td>−0.165</td></tr>
+<tr><td>EURCHF–NZDUSD</td><td>7168</td><td>0.135</td><td>0.186</td><td>−0.103</td><td>−0.180</td></tr>
+</tbody>
+</table>
+
+<table>
+<thead>
+<tr>
+<th>Pair</th>
+<th>Window</th>
+<th>Mean r</th>
+<th>Std</th>
+<th>Min</th>
+<th>Max</th>
+<th>Share |r| &gt; 0.5</th>
+<th>Share |r| &gt; 0.7</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>EURGBP–EURCHF</td><td>20</td><td>0.105</td><td>0.307</td><td>−0.731</td><td>0.909</td><td>13.6%</td><td>1.8%</td></tr>
+<tr><td>EURGBP–EURCHF</td><td>60</td><td>0.102</td><td>0.227</td><td>−0.541</td><td>0.700</td><td>3.4%</td><td>0.0%</td></tr>
+<tr><td>EURGBP–EURCHF</td><td>100</td><td>0.098</td><td>0.203</td><td>−0.400</td><td>0.560</td><td>1.5%</td><td>0.0%</td></tr>
+<tr><td>EURGBP–NZDUSD</td><td>20</td><td>0.037</td><td>0.296</td><td>−0.768</td><td>0.814</td><td>10.7%</td><td>0.9%</td></tr>
+<tr><td>EURGBP–NZDUSD</td><td>60</td><td>0.030</td><td>0.224</td><td>−0.592</td><td>0.599</td><td>3.5%</td><td>0.0%</td></tr>
+<tr><td>EURGBP–NZDUSD</td><td>100</td><td>0.030</td><td>0.207</td><td>−0.554</td><td>0.565</td><td>1.6%</td><td>0.0%</td></tr>
+<tr><td>EURCHF–NZDUSD</td><td>20</td><td>0.099</td><td>0.312</td><td>−0.764</td><td>0.887</td><td>14.0%</td><td>1.9%</td></tr>
+<tr><td>EURCHF–NZDUSD</td><td>60</td><td>0.106</td><td>0.227</td><td>−0.533</td><td>0.775</td><td>4.5%</td><td>0.5%</td></tr>
+<tr><td>EURCHF–NZDUSD</td><td>100</td><td>0.110</td><td>0.199</td><td>−0.458</td><td>0.706</td><td>3.4%</td><td>0.1%</td></tr>
+</tbody>
+</table>
+
+<h2 id="how-to-read">How to read the lines</h2>
+<ul>
+<li><strong>r<sub>20</sub> (blue)</strong> — last ~one trading month. Noisy. Useful to see short breaks; easy to over-read.</li>
+<li><strong>r<sub>60</sub> (orange)</strong> — about one quarter. Filters some noise; still can flip sign.</li>
+<li><strong>r<sub>100</sub> (green)</strong> — about five months. Slowest of the three; closest to a “regime” read for this dig.</li>
+<li>A spike of |r| above 0.5 on r<sub>20</sub> alone is common (about 11–14% of days here).
+The same threshold on r<sub>100</sub> is rare (about 1.5–3.4%). That is the opposite
+pattern of pairs like AUDUSD–NZDUSD, where long windows stay high.</li>
+<li>r is symmetric in the two symbols. It does not prove cause, lead-lag, or a hedge.</li>
+</ul>
+
+<h2 id="conclusion">Conclusion</h2>
+<div class="conclusion">
+<p>
+<strong>What we got to know.</strong>
+EURGBP, synthetic EURCHF, and NZDUSD do not form a tight three-way dependence
+block on daily log returns. Every cross has a near-zero full-sample Pearson r.
+Over ~27 years of Alpari D1 history, rolling means stay near zero for all three
+windows. Short windows (20) often look “interesting” for a few weeks — absolute
+correlation above 0.5 on roughly one day in seven to nine — but those episodes
+almost never survive into the 100-day window. At the latest complete day
+(2026-11-02), no cross shows a strong alignment: the largest |latest| score is
+only about 0.27 (EURGBP–NZDUSD r<sub>20</sub>), and the longer windows are all
+below |0.2|.
+</p>
+<p>
+<strong>Compared with rolling v001.</strong>
+The short watchlist pairs keep high |r| for long stretches. These three crosses
+do not. EURGBP–NZDUSD already sat in the v001 low-value / “still near zero”
+group; the new EURCHF crosses behave the same way. Digging into rolling paths
+does not uncover a hidden stable link — it shows intermittent noise around a
+weak average.
+</p>
+<p>
+<strong>Practical takeaway for this research stream.</strong>
+Do not treat EURGBP–EURCHF, EURGBP–NZDUSD, or EURCHF–NZDUSD as structural
+correlation anchors. If a later method needs a quiet control pair, EURGBP–NZDUSD
+is a clear candidate. If attention is spent on EUR/CHF exposure, measure it
+against the stored majors that actually show strong rolling bands (for example
+EURUSD–USDCHF in v001), not against NZDUSD or EURGBP. Escalate only if a short
+window spike is confirmed by r<sub>60</sub> and r<sub>100</sub> for a sustained
+period — something these three charts almost never do.
+</p>
+</div>
+
+<p class="note">
+Source files: <code>NOTES.md</code>, <code>run_crosses.py</code>,
+<code>outputs/*_Rolling_D1_rolling.png</code>.
+Open this page from the folder so the image paths resolve.
+</p>
+</body>
+</html>
